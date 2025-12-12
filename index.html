@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Akaryakıt Fiyat Sorgu</title>
+<style>
+    body {
+        font-family: Arial;
+        background: #ffbd59;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        color: #fff;
+    }
+    .card {
+        background: rgba(0,0,0,0.3);
+        padding: 20px;
+        width: 380px;
+        border-radius: 20px;
+        text-align: center;
+        backdrop-filter: blur(5px);
+    }
+    select, button {
+        width: 90%;
+        padding: 10px;
+        margin-top: 10px;
+        border-radius: 10px;
+        border: none;
+        font-size: 16px;
+    }
+    button {
+        background: #d87f00;
+        color: #fff;
+        cursor: pointer;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <h2>⛽ Akaryakıt Fiyatları</h2>
+
+    <select id="city">
+        <option>Yükleniyor...</option>
+    </select>
+
+    <button onclick="getPrice()">Fiyatları Getir</button>
+
+    <div id="result" style="margin-top:20px;font-size:18px;"></div>
+</div>
+
+<script>
+const API_URL = "https://senin-api-adresin.onrender.com"; // Render URL’ini buraya yaz
+
+async function loadCities() {
+    const res = await fetch(API_URL + "/provinces");
+    const data = await res.json();
+
+    const select = document.getElementById("city");
+    select.innerHTML = "";
+
+    data.forEach(city => {
+        const opt = document.createElement("option");
+        opt.value = city;
+        opt.innerText = city;
+        select.appendChild(opt);
+    });
+}
+
+async function getPrice() {
+    const city = document.getElementById("city").value;
+    const res = await fetch(`${API_URL}/fiyat?sehir=${city}`);
+    const data = await res.json();
+
+    if (data.error) {
+        document.getElementById("result").innerText = data.error;
+        return;
+    }
+
+    document.getElementById("result").innerHTML = `
+        <strong>${data.şehir}</strong><br><br>
+        🟡 Benzin: ${data.fiyatlar.benzin} TL<br>
+        ⛽ Motorin: ${data.fiyatlar.motorin} TL<br>
+        🔵 LPG: ${data.fiyatlar.lpg} TL
+    `;
+}
+
+loadCities();
+</script>
+
+</body>
+</html>
