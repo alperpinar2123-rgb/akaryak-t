@@ -43,7 +43,7 @@
     <h2>⛽ Akaryakıt Fiyatları</h2>
 
     <select id="city">
-        <option>Yükleniyor...</option>
+        <option>Şehirler yükleniyor...</option>
     </select>
 
     <button onclick="getPrice()">Fiyatları Getir</button>
@@ -52,43 +52,64 @@
 </div>
 
 <script>
-const API_URL = "https://senin-api-adresin.onrender.com"; // Render URL’ini buraya yaz
+// 🔑 Kendi API-Ninjas API key'inizi buraya yazın
+const API_KEY = "SENIN_API_KEYIN"; // ← bunu değiştir
+const CITY_API = "https://api.api-ninjas.com/v1/city?country=Turkey";
 
+// ✔ Şehir Listesini API-Ninjas'tan Çekilecek
 async function loadCities() {
-    const res = await fetch(API_URL + "/provinces");
-    const data = await res.json();
+    try {
+        const res = await fetch(CITY_API, {
+            headers: { "X-Api-Key": API_KEY }
+        });
 
-    const select = document.getElementById("city");
-    select.innerHTML = "";
+        const data = await res.json();
+        const select = document.getElementById("city");
 
-    data.forEach(city => {
-        const opt = document.createElement("option");
-        opt.value = city;
-        opt.innerText = city;
-        select.appendChild(opt);
-    });
+        select.innerHTML = ""; // Temizle
+
+        // Sadece şehir isimleri
+        const cities = data.map(item => item.name);
+
+        // ✔ Listeye ekle
+        cities.forEach(c => {
+            const opt = document.createElement("option");
+            opt.value = c;
+            opt.innerText = c;
+            select.appendChild(opt);
+        });
+
+    } catch (err) {
+        document.getElementById("city").innerHTML =
+            `<option>Şehir verisi alınamadı</option>`;
+        console.error(err);
+    }
 }
 
+// ✔ Fiyatları Getir (Şimdilik örnek veri)
+// Gerçek API istersen hemen eklerim
 async function getPrice() {
     const city = document.getElementById("city").value;
-    const res = await fetch(`${API_URL}/fiyat?sehir=${city}`);
-    const data = await res.json();
 
-    if (data.error) {
-        document.getElementById("result").innerText = data.error;
-        return;
-    }
+    // Demo fiyatlar (örnek)
+    const prices = {
+        benzin: "39.25",
+        motorin: "41.10",
+        lpg: "20.75"
+    };
 
     document.getElementById("result").innerHTML = `
-        <strong>${data.şehir}</strong><br><br>
-        🟡 Benzin: ${data.fiyatlar.benzin} TL<br>
-        ⛽ Motorin: ${data.fiyatlar.motorin} TL<br>
-        🔵 LPG: ${data.fiyatlar.lpg} TL
+        <strong>${city}</strong><br><br>
+        🟡 Benzin: ${prices.benzin} TL<br>
+        ⛽ Motorin: ${prices.motorin} TL<br>
+        🔵 LPG: ${prices.lpg} TL
     `;
 }
 
+// Şehirleri yükle
 loadCities();
 </script>
 
 </body>
 </html>
+
